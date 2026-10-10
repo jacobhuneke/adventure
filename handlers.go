@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jacobhuneke/chirpy/internal/auth"
-	"github.com/jacobhuneke/chirpy/internal/database"
+	"github.com/jacobhuneke/adventure/internal/auth"
+	"github.com/jacobhuneke/adventure/internal/database"
 )
 
 func handlerReadiness(w http.ResponseWriter, r *http.Request) {
@@ -25,8 +25,8 @@ func (a *apiConfig) handlerNumReqs(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	str := fmt.Sprintf(`<html>
   <body>
-    <h1>Welcome, Chirpy Admin</h1>
-    <p>Chirpy has been visited %d times!</p>
+    <h1>Welcome, Adventure Admin</h1>
+    <p>Adventure has been visited %d times!</p>
   </body>
 </html>`, a.fileserverHits.Load())
 	w.Write([]byte(str))
@@ -42,7 +42,7 @@ func (a *apiConfig) handlerReqReset(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, 500, "Something went wrong")
 		return
 	}
-	err = a.db.DeleteChirps(r.Context())
+	err = a.db.DeleteAdventures(r.Context())
 	if err != nil {
 		respondWithError(w, 500, "Something went wrong")
 		return
@@ -92,11 +92,11 @@ func (a *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, 500, "Something went wrong")
 		return
 	}
-	respondWithJSON(w, 201, UserC{user.ID, user.CreatedAt, user.UpdatedAt, user.Email, user.IsChirpyRed})
+	respondWithJSON(w, 201, UserC{user.ID, user.CreatedAt, user.UpdatedAt, user.Email, user.IsAdventureRed})
 }
 
-func (a *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
-	//sets input parameters, the chirp and the user
+func (a *apiConfig) handlerAdventures(w http.ResponseWriter, r *http.Request) {
+	//sets input parameters, the adventure and the user
 	type parameters struct {
 		Body   string    `json:"body"`
 		UserID uuid.UUID `json:"user_id"`
@@ -140,11 +140,11 @@ func (a *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
 
 	//checks if chirp is too long
 	if len(params.Body) > 140 {
-		errString := "Chirp is too long"
+		errString := "adventure is too long"
 		respondWithError(w, 400, errString)
 		return
 	} else { //creates a new chirp in the database and returns it
-		chirpParams := database.CreateChirpParams{
+		adventureParams := database.CreateAdventureParams{
 			ID:        uuid.New(),
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
@@ -152,19 +152,19 @@ func (a *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
 			UserID:    id,
 		}
 		params.Body = strings.Join(splRegBody, " ")
-		chirp, err := a.db.CreateChirp(r.Context(), chirpParams)
+		adventure, err := a.db.CreateAdventure(r.Context(), adventureParams)
 		if err != nil {
 			respondWithError(w, 400, err.Error())
 			return
 		}
-		respondWithJSON(w, 201, Chirp{chirp.ID, chirp.CreatedAt, chirp.UpdatedAt, chirp.Body, chirp.UserID})
+		respondWithJSON(w, 201, Adventure{adventure.ID, adventure.CreatedAt, adventure.UpdatedAt, adventure.Body, adventure.UserID})
 	}
 }
 
-func (a *apiConfig) handlerGetChirps(w http.ResponseWriter, r *http.Request) {
+func (a *apiConfig) handlerGetAdventures(w http.ResponseWriter, r *http.Request) {
 	auth := r.URL.Query().Get("author_id")
 	s := r.URL.Query().Get("sort")
-	var chirps []database.Chirp
+	var adventures []database.Adventure
 	var err error
 	if auth != "" {
 		user_id, err := uuid.Parse(auth)
@@ -172,42 +172,42 @@ func (a *apiConfig) handlerGetChirps(w http.ResponseWriter, r *http.Request) {
 			respondWithError(w, 400, err.Error())
 			return
 		}
-		chirps, err = a.db.GetChirpsByAuthor(r.Context(), user_id)
+		adventures, err = a.db.GetAdventuresByUser(r.Context(), user_id)
 		if err != nil {
 			respondWithError(w, 400, err.Error())
 			return
 		}
 	} else {
-		chirps, err = a.db.GetChirps(r.Context())
+		adventures, err = a.db.GetAdventures(r.Context())
 		if err != nil {
 			respondWithError(w, 400, err.Error())
 			return
 		}
 	}
 	if s != "" && s == "desc" {
-		sort.Slice(chirps, func(i, j int) bool { return chirps[i].CreatedAt.After(chirps[j].CreatedAt) })
+		sort.Slice(adventures, func(i, j int) bool { return adventures[i].CreatedAt.After(adventures[j].CreatedAt) })
 	}
-	jsonchirps := []Chirp{}
-	for _, chirp := range chirps {
-		jsonchirps = append(jsonchirps, Chirp{chirp.ID, chirp.CreatedAt, chirp.UpdatedAt, chirp.Body, chirp.UserID})
+	jsonadventures := []Adventure{}
+	for _, adventure := range adventures {
+		jsonadventures = append(jsonadventures, Adventure{adventure.ID, adventure.CreatedAt, adventure.UpdatedAt, adventure.Body, adventure.UserID})
 	}
-	respondWithJSON(w, 200, jsonchirps)
+	respondWithJSON(w, 200, jsonadventures)
 }
 
-func (a *apiConfig) handlerGetChirp(w http.ResponseWriter, r *http.Request) {
-	path := r.PathValue("chirpID")
+func (a *apiConfig) handlerGetAdventure(w http.ResponseWriter, r *http.Request) {
+	path := r.PathValue("adventureID")
 	if path != "" {
 		id, err := uuid.Parse(path)
 		if err != nil {
 			respondWithError(w, 404, "couldnt get path uuid")
 			return
 		}
-		chirp, err := a.db.GetChirp(r.Context(), id)
+		adventure, err := a.db.GetAdventure(r.Context(), id)
 		if err != nil {
-			respondWithError(w, 404, "could not get chirp")
+			respondWithError(w, 404, "could not get adventure")
 			return
 		}
-		respondWithJSON(w, 200, Chirp{chirp.ID, chirp.CreatedAt, chirp.UpdatedAt, chirp.Body, chirp.UserID})
+		respondWithJSON(w, 200, Adventure{adventure.ID, adventure.CreatedAt, adventure.UpdatedAt, adventure.Body, adventure.UserID})
 	} else {
 		respondWithError(w, 404, "could not get path")
 		return
@@ -261,7 +261,7 @@ func (a *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, 200, UserL{user.ID, user.CreatedAt, user.UpdatedAt, user.Email, token, refresh_token, user.IsChirpyRed})
+	respondWithJSON(w, 200, UserL{user.ID, user.CreatedAt, user.UpdatedAt, user.Email, token, refresh_token, user.IsAdventureRed})
 }
 
 func (a *apiConfig) handlerRefresh(w http.ResponseWriter, r *http.Request) {
@@ -341,10 +341,10 @@ func (a *apiConfig) handlerUpdateLoginCreds(w http.ResponseWriter, r *http.Reque
 		respondWithError(w, 401, err.Error())
 		return
 	}
-	respondWithJSON(w, 200, UserC{u.ID, u.CreatedAt, u.UpdatedAt, u.Email, u.IsChirpyRed})
+	respondWithJSON(w, 200, UserC{u.ID, u.CreatedAt, u.UpdatedAt, u.Email, u.IsAdventureRed})
 }
 
-func (a *apiConfig) handlerDeleteChirp(w http.ResponseWriter, r *http.Request) {
+func (a *apiConfig) handlerDeleteAdventure(w http.ResponseWriter, r *http.Request) {
 	token, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		respondWithError(w, 401, err.Error())
@@ -355,30 +355,30 @@ func (a *apiConfig) handlerDeleteChirp(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, 401, "Unauthorized")
 		return
 	}
-	path := r.PathValue("chirpID")
+	path := r.PathValue("adventureID")
 	if path != "" {
-		chirpid, err := uuid.Parse(path)
+		adventureid, err := uuid.Parse(path)
 		if err != nil {
 			respondWithError(w, 404, "couldnt get path uuid")
 			return
 		}
-		chirp, err := a.db.GetChirp(r.Context(), chirpid)
+		adventure, err := a.db.GetAdventure(r.Context(), adventureid)
 		if err != nil {
-			respondWithError(w, 404, "could not get chirp")
+			respondWithError(w, 404, "could not get adventure")
 			return
 		}
-		if chirp.UserID != userID {
+		if adventure.UserID != userID {
 			respondWithError(w, 403, "Forbidden")
 			return
 		}
-		err = a.db.DeleteChirpByID(r.Context(), chirpid)
+		err = a.db.DeleteAdventureByID(r.Context(), adventureid)
 		if err != nil {
-			respondWithError(w, 404, "could not delete chirp")
+			respondWithError(w, 404, "could not delete adventure")
 			return
 		}
 		w.WriteHeader(204)
 	}
-	respondWithError(w, 403, "must pass a chirp id")
+	respondWithError(w, 403, "must pass a adventure id")
 }
 
 func (a *apiConfig) handlerUpgradeRed(w http.ResponseWriter, r *http.Request) {

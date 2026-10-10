@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type Chirp struct {
+type Adventure struct {
 	ID        uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -34,5 +34,5 @@ type User struct {
 	UpdatedAt      time.Time
 	Email          string
 	HashedPassword string
-	IsChirpyRed    bool
+	IsAdventureRed bool
 }

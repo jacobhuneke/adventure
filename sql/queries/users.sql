@@ -33,6 +33,6 @@ RETURNING *;
 
 -- name: UpgradeRedByUserID :one
 UPDATE users
-SET is_chirpy_red = TRUE, updated_at = NOW()
+SET is_adventure_red = TRUE, updated_at = NOW()
 WHERE id = $1
 RETURNING *;

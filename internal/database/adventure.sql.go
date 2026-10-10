@@ -65,7 +65,7 @@ const deleteChirps = `-- name: DeleteChirps :exec
 DELETE FROM chirps
 `
 
-func (q *Queries) DeleteChirps(ctx context.Context) error {
+func (q *Queries) DeleteAdventure(ctx context.Context) error {
 	_, err := q.db.ExecContext(ctx, deleteChirps)
 	return err
 }
@@ -75,7 +75,7 @@ SELECT id, created_at, updated_at, body, user_id FROM chirps
 WHERE id = $1
 `
 
-func (q *Queries) GetChirp(ctx context.Context, id uuid.UUID) (Chirp, error) {
+func (q *Queries) GetAdventure(ctx context.Context, id uuid.UUID) (Chirp, error) {
 	row := q.db.QueryRowContext(ctx, getChirp, id)
 	var i Chirp
 	err := row.Scan(
@@ -93,7 +93,7 @@ SELECT id, created_at, updated_at, body, user_id FROM chirps
 ORDER BY created_at ASC
 `
 
-func (q *Queries) GetChirps(ctx context.Context) ([]Chirp, error) {
+func (q *Queries) GetAdventures(ctx context.Context) ([]Chirp, error) {
 	rows, err := q.db.QueryContext(ctx, getChirps)
 	if err != nil {
 		return nil, err

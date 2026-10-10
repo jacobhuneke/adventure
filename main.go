@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jacobhuneke/chirpy/internal/database"
+	"github.com/jacobhuneke/adventure/internal/database"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -23,24 +23,24 @@ type apiConfig struct {
 	polka_key      string
 }
 type UserC struct {
-	ID          uuid.UUID `json:"id"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	Email       string    `json:"email"`
-	IsChirpyRed bool      `json:"is_chirpy_red"`
+	ID             uuid.UUID `json:"id"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+	Email          string    `json:"email"`
+	IsAdventureRed bool      `json:"is_adventure_red"`
 }
 
 type UserL struct {
-	ID           uuid.UUID `json:"id"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
-	Email        string    `json:"email"`
-	Token        string    `json:"token"`
-	RefreshToken string    `json:"refresh_token"`
-	IsChirpyRed  bool      `json:"is_chirpy_red"`
+	ID             uuid.UUID `json:"id"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+	Email          string    `json:"email"`
+	Token          string    `json:"token"`
+	RefreshToken   string    `json:"refresh_token"`
+	IsAdventureRed bool      `json:"is_adventure_red"`
 }
 
-type Chirp struct {
+type Adventure struct {
 	ID        uuid.UUID `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -84,14 +84,14 @@ func main() {
 	serveMux.HandleFunc("GET /admin/metrics", apicfg.handlerNumReqs)
 	serveMux.HandleFunc("POST /admin/reset", apicfg.handlerReqReset)
 	serveMux.HandleFunc("POST /api/users", apicfg.handlerCreateUser)
-	serveMux.HandleFunc("POST /api/chirps", apicfg.handlerChirps)
-	serveMux.HandleFunc("GET /api/chirps", apicfg.handlerGetChirps)
-	serveMux.HandleFunc("GET /api/chirps/{chirpID}", apicfg.handlerGetChirp)
+	serveMux.HandleFunc("POST /api/adventures", apicfg.handlerAdventures)
+	serveMux.HandleFunc("GET /api/adventures", apicfg.handlerGetAdventures)
+	serveMux.HandleFunc("GET /api/adventures/{adventureID}", apicfg.handlerGetAdventure)
 	serveMux.HandleFunc("POST /api/login", apicfg.handlerLogin)
 	serveMux.HandleFunc("POST /api/refresh", apicfg.handlerRefresh)
 	serveMux.HandleFunc("POST /api/revoke", apicfg.handlerRevoke)
 	serveMux.HandleFunc("PUT /api/users", apicfg.handlerUpdateLoginCreds)
-	serveMux.HandleFunc("DELETE /api/chirps/{chirpID}", apicfg.handlerDeleteChirp)
+	serveMux.HandleFunc("DELETE /api/adventures/{adventureID}", apicfg.handlerDeleteAdventure)
 	serveMux.HandleFunc("POST /api/polka/webhooks", apicfg.handlerUpgradeRed)
 
 	server := http.Server{
