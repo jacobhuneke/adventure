@@ -21,7 +21,7 @@ WHERE id = $1;
 -- name: DeleteAdventures :exec
 DELETE FROM adventures;
 
--- name: DeleteAdventureyID :exec
+-- name: DeleteAdventureByID :exec
 DELETE FROM adventures
 WHERE id = $1;
 
