@@ -381,6 +381,25 @@ func (a *apiConfig) handlerDeleteAdventure(w http.ResponseWriter, r *http.Reques
 	respondWithError(w, 403, "must pass a adventure id")
 }
 
+func (a *apiConfig) handlerDeleteUser(w http.ResponseWriter, r *http.Request) {
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, 401, err.Error())
+		return
+	}
+	userID, err := auth.ValidateJWT(token, a.secret)
+	if err != nil {
+		respondWithError(w, 401, "Unauthorized")
+		return
+	}
+	err = a.db.DeleteUserByID(r.Context(), userID)
+	if err != nil {
+		respondWithError(w, 404, "could not delete user")
+		return
+	}
+	w.WriteHeader(204)
+
+}
 func (a *apiConfig) handlerUpgradeRed(w http.ResponseWriter, r *http.Request) {
 	polkaKey, err := auth.GetAPIKey(r.Header)
 	if err != nil {

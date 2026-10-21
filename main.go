@@ -92,6 +92,7 @@ func main() {
 	serveMux.HandleFunc("POST /api/revoke", apicfg.handlerRevoke)
 	serveMux.HandleFunc("PUT /api/users", apicfg.handlerUpdateLoginCreds)
 	serveMux.HandleFunc("DELETE /api/adventures/{adventureID}", apicfg.handlerDeleteAdventure)
+	serveMux.HandleFunc("DELETE /api/users/{userID}", apicfg.handlerDeleteUser)
 	serveMux.HandleFunc("POST /api/polka/webhooks", apicfg.handlerUpgradeRed)
 
 	server := http.Server{
